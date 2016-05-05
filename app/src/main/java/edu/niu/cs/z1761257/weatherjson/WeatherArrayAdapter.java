@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Adapter that will be used with the ListView
@@ -67,8 +68,21 @@ public class WeatherArrayAdapter extends ArrayAdapter<Weather>
             viewHolder = (ViewHolder)convertView.getTag();
         }
 
+        //If image has been downloaded, use it
+        if(images.containsKey(day)){
+            viewHolder.conditionIV.setImageBitmap(images.get(day.iconURL));
+        }   //otherwise, go get the image
+        else
+            new LoadImageTask(viewHolder.conditionIV).execute(day.iconURL);
 
-        return convertView;
+            Context context = getContext();
+            viewHolder.dayTV.setText(context.getString(R.string.day_description, day.dayOfWeek, day.description));
+            viewHolder.lowTV.setText(context.getString(R.string.low_temp, day.lowTemp));
+            viewHolder.highTV.setText(context.getString(R.string.high_temp, day.highTemp));
+            viewHolder.humidityTV.setText(context.getString(R.string.humidity, day.humidity));
+
+            return convertView;
+
     }//end getView
 
 
@@ -78,5 +92,46 @@ public class WeatherArrayAdapter extends ArrayAdapter<Weather>
         ImageView conditionIV;
         TextView dayTV, lowTV, highTV, humidityTV;
     }//end ViewHolder
+
+    private class LoadImageTask extends AsyncTask<String,Void,Bitmap>{
+        private ImageView conditionImage;
+
+        public LoadImageTask(ImageView conditionImage) {
+            this.conditionImage = conditionImage;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            Bitmap bitmap = null;
+            HttpURLConnection connection = null;
+
+            try{
+                URL url = new URL(params[0]);
+                connection = (HttpURLConnection)url.openConnection();
+
+                try{
+                    InputStream inputStream = connection.getInputStream();
+                    bitmap = BitmapFactory.decodeStream(inputStream);
+
+                    images.put(params[0],bitmap);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }//inner try catch
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            finally {
+                connection.disconnect();
+            }//outer try catch
+            return bitmap;
+        }//end of doInBackground
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+           conditionImage.setImageBitmap(bitmap);
+        }
+    }//end of LoadImageTask
+
+
 
 }//end WeatherArrayAdapter class
