@@ -30,7 +30,7 @@
         android:layout_alignTop="@+id/locationEditText"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/ic_cloud_done_24dp"
+        android:background="@drawable/ic_cloud_download_24dp"
         android:onClick="getWeather"/>
 
     <ListView
