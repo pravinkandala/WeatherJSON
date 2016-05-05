@@ -128,10 +128,9 @@ public class WeatherArrayAdapter extends ArrayAdapter<Weather>
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-           conditionImage.setImageBitmap(bitmap);
+            conditionImage.setImageBitmap(bitmap);
         }
     }//end of LoadImageTask
-
 
 
 }//end WeatherArrayAdapter class
